@@ -5,6 +5,7 @@ using System.Text;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine.Audio;
 
 public class SimpleAudioEditor : EditorWindow
 {
@@ -13,6 +14,8 @@ public class SimpleAudioEditor : EditorWindow
     private string sfxPath = "SFX";
     private string musicPath = "Music";
     private string vaPath = "VA";
+
+    private AudioMixer audioFilter;
 
     [MenuItem("Window/Audio/Simple Audio Emplementation")]
     public static void ShowWindow()
@@ -43,6 +46,8 @@ public class SimpleAudioEditor : EditorWindow
         if (!Directory.Exists(pluginPath + soundType + "/" + folderName))
         {
             AssetDatabase.CreateFolder(pluginPath + soundType, folderName);
+            AssetDatabase.CopyAsset("Assets/Projects/Editor/DefaultAudioMixer.mixer", pluginPath + soundType + "/" + folderName + "/AudioMixer.mixer");
+            AssetDatabase.CopyAsset("Assets/Projects/Editor/DefaultRandomAudioContainer.asset", pluginPath + soundType + "/" + folderName + "/RandomAudioContainer.asset");
         }
         else
         {
@@ -57,18 +62,19 @@ public class SimpleAudioEditor : EditorWindow
     {
         string enumDir = String.Join("," + Environment.NewLine + "    ", GetAllFolders());
 
-        Debug.Log(enumDir);
+        //Debug.Log(enumDir);
 
-        if (File.Exists(pluginPath + "/SoundList.cs"))
+        if (File.Exists(pluginPath + "/SFXList.cs"))
         {
-            File.Delete(pluginPath + "/SoundList.cs");
-            using (FileStream fs = File.Create(pluginPath + "/SoundList.cs"))
-            {
-                AddText(fs, "public enum Sound" + Environment.NewLine +
-                            "{" + Environment.NewLine +
-                            "    " + enumDir + Environment.NewLine +
-                            "}");
-            }
+            File.Delete(pluginPath + "/SFXList.cs");
+        }
+
+        using (FileStream fs = File.Create(pluginPath + "/" + sfxPath + "/SFXList.cs"))
+        {
+            AddText(fs, "public enum SFX" + Environment.NewLine +
+                        "{" + Environment.NewLine +
+                        "    " + enumDir + Environment.NewLine +
+                        "}");
         }
 
         //GetAllFolders();
@@ -98,8 +104,6 @@ public class SimpleAudioEditor : EditorWindow
         List<string> lines = File.ReadLines(enumPath).ToList();
         lines.RemoveAt(lines.Count - 1);
         return lines;
-        /*File.WriteAllLines(enumPath, lines);
-        return lines.Count - 1;*/
     }
 
     private string[] GetAllFolders()
@@ -114,9 +118,5 @@ public class SimpleAudioEditor : EditorWindow
 
         return allFolders;
 
-        /*foreach(string folder in allFolders)
-        {
-            Debug.Log(folder);
-        }*/
     }
 }
